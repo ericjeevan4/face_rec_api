@@ -20,5 +20,5 @@ RUN pip install -r /app/requirements.txt --no-cache-dir
 
 COPY . /app
 
-# Expose is optional; Render uses $PORT
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:$PORT", "app:app"]
+# Expose is optional; Render sets $PORT automatically
+CMD gunicorn -w 2 -b 0.0.0.0:$PORT app:app

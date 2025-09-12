@@ -1,4 +1,3 @@
-# Dockerfile
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -21,4 +20,7 @@ RUN pip install -r /app/requirements.txt --no-cache-dir
 COPY . /app
 
 # Expose is optional; Render sets $PORT automatically
-CMD gunicorn -w 2 -b 0.0.0.0:$PORT app:app
+EXPOSE $PORT
+
+# Run Gunicorn with $PORT expanded correctly
+CMD gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120

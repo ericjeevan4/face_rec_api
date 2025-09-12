@@ -20,7 +20,7 @@ app = Flask(__name__)
 EMBED_PATH = os.environ.get("EMBEDDINGS_PATH", "embeddings.npy")
 LABELS_PATH = os.environ.get("LABELS_PATH", "labels.npy")
 FIREBASE_SECRET_FILE = os.environ.get("FIREBASE_SECRET_FILE", "/etc/secrets/serviceAccount.json")
-FIREBASE_BUCKET = os.environ.get("FIREBASE_BUCKET", None)  # e.g. your-project-id.appspot.com
+FIREBASE_BUCKET = os.environ.get("hope-cff1b.firebasestorage.app", None)  # e.g. your-project-id.appspot.com
 THRESHOLD = float(os.environ.get("MATCH_THRESHOLD", 0.7))
 
 # Device & models (loaded once)

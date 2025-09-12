@@ -20,14 +20,23 @@ app = Flask(__name__)
 EMBED_PATH = os.environ.get("EMBEDDINGS_PATH", "embeddings.npy")
 LABELS_PATH = os.environ.get("LABELS_PATH", "labels.npy")
 FIREBASE_SECRET_FILE = os.environ.get("FIREBASE_SECRET_FILE", "/etc/secrets/serviceAccount.json")
-FIREBASE_BUCKET = os.environ.get("FIREBASE_STORAGE_BUCKET", None)  # ✅ fix: correct env var name
+FIREBASE_BUCKET = os.environ.get("FIREBASE_STORAGE_BUCKET", None)
 THRESHOLD = float(os.environ.get("MATCH_THRESHOLD", 0.7))
 
 # Device & models (loaded once)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger.info(f"Device: {device}")
 mtcnn = MTCNN(image_size=160, margin=0, min_face_size=20, device=device)
-resnet = InceptionResnetV1(pretrained='vggface2').eval().to(device)
+
+# ✅ Load resnet from local weights (no internet download)
+MODEL_PATH = os.environ.get("MODEL_PATH", "models/vggface2_resnet.pth")
+resnet = InceptionResnetV1(pretrained=None).eval().to(device)
+if os.path.exists(MODEL_PATH):
+    logger.info(f"Loading ResNet weights from {MODEL_PATH}")
+    resnet.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+else:
+    logger.error(f"Model file not found at {MODEL_PATH}. Please add it before running.")
+    raise FileNotFoundError(f"Missing model file: {MODEL_PATH}")
 
 # Firebase init (if secret + bucket provided)
 bucket = None
@@ -42,7 +51,7 @@ if os.path.exists(FIREBASE_SECRET_FILE) and FIREBASE_BUCKET:
         logger.warning(f"Firebase init failed: {e}")
         bucket = None
 
-# Helper: ensure embeddings & labels available (download from Firebase if needed)
+# Helper: ensure embeddings & labels available
 def ensure_embeddings():
     global embeddings, labels
     if os.path.exists(EMBED_PATH) and os.path.exists(LABELS_PATH):
@@ -126,6 +135,6 @@ def predict():
     return jsonify(resp)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "5000"))  # ✅ fix: default string to "5000"
+    port = int(os.environ.get("PORT", "5000"))
     logger.info(f"Starting app on 0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port)

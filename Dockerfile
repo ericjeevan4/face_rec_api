@@ -19,8 +19,8 @@ RUN pip install -r /app/requirements.txt --no-cache-dir
 
 COPY . /app
 
-# Expose is optional; Render sets $PORT automatically
-EXPOSE $PORT
+# Expose default dev port (Render remaps dynamically)
+EXPOSE 5000
 
-# Run Gunicorn with $PORT expanded correctly
-CMD gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+# Run Gunicorn with 1 worker (reduce memory usage)
+CMD gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120

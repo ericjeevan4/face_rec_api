@@ -20,7 +20,7 @@ app = Flask(__name__)
 EMBED_PATH = os.environ.get("EMBEDDINGS_PATH", "embeddings.npy")
 LABELS_PATH = os.environ.get("LABELS_PATH", "labels.npy")
 FIREBASE_SECRET_FILE = os.environ.get("FIREBASE_SECRET_FILE", "/etc/secrets/serviceAccount.json")
-FIREBASE_BUCKET = os.environ.get("hope-cff1b.firebasestorage.app", None)  # e.g. your-project-id.appspot.com
+FIREBASE_BUCKET = os.environ.get("FIREBASE_STORAGE_BUCKET", None)  # ✅ fix: correct env var name
 THRESHOLD = float(os.environ.get("MATCH_THRESHOLD", 0.7))
 
 # Device & models (loaded once)
@@ -126,6 +126,6 @@ def predict():
     return jsonify(resp)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", "5000"))  # ✅ fix: default string to "5000"
     logger.info(f"Starting app on 0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port)

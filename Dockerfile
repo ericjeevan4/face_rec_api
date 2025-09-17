@@ -32,10 +32,10 @@ RUN mkdir -p /app/models
 COPY models/ /app/models/
 
 # ✅ Copy embeddings & labels if they exist
-COPY embeddings.npy labels.npy /app/
+COPY embeddings.npy labels.npy /app/ || true
 
 # Expose default dev port (Render remaps dynamically)
 EXPOSE 5000
 
 # Run Gunicorn with 1 worker
-CMD gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+CMD gunicorn app:app --bind 0.0.0.0:${PORT:-5000} --workers 1 --timeout 300

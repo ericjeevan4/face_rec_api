@@ -41,7 +41,9 @@ logger.info(f"Checking models folder: {os.listdir('models') if os.path.exists('m
 resnet = InceptionResnetV1(pretrained=None).eval().to(device)
 if os.path.exists(MODEL_PATH):
     logger.info(f"Loading ResNet weights from {MODEL_PATH}")
-    resnet.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+    state_dict = torch.load(MODEL_PATH, map_location=device)
+    # ⚡ Fix: ignore unexpected keys like logits.weight/bias
+    resnet.load_state_dict(state_dict, strict=False)
 else:
     logger.error(f"Model file not found at {MODEL_PATH}. Please add it before running.")
     raise FileNotFoundError(f"Missing model file: {MODEL_PATH}")

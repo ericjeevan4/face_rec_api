@@ -27,10 +27,11 @@ RUN pip install -r /app/requirements.txt --no-cache-dir
 # Copy your application code
 COPY . /app
 
-# ✅ Copy the models folder explicitly (ensure vggface2_resnet.pth is inside)
-COPY models /app/models
+# ✅ Ensure models folder exists before copy (prevents build failure)
+RUN mkdir -p /app/models
+COPY models/ /app/models/
 
-# ✅ Copy embeddings & labels
+# ✅ Copy embeddings & labels if they exist
 COPY embeddings.npy labels.npy /app/
 
 # Expose default dev port (Render remaps dynamically)

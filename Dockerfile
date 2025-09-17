@@ -31,8 +31,9 @@ COPY . /app
 RUN mkdir -p /app/models
 COPY models/ /app/models/
 
-# ✅ Copy embeddings & labels if they exist
-COPY embeddings.npy labels.npy /app/ || true
+# ✅ Copy embeddings & labels only if they exist
+RUN test -f embeddings.npy && cp embeddings.npy /app/ || true
+RUN test -f labels.npy && cp labels.npy /app/ || true
 
 # Expose default dev port (Render remaps dynamically)
 EXPOSE 5000

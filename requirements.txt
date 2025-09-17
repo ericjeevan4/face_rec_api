@@ -1,18 +1,10 @@
-# Web server
 flask==2.2.5
 flask-cors==3.0.10
-gunicorn==23.0.0
-
-# FaceNet / PyTorch (CPU only)
+gunicorn
 facenet-pytorch==2.6.0
-torch==2.2.0+cpu
-torchvision==0.17.1+cpu
--f https://download.pytorch.org/whl/torch_stable.html
-
-# Data handling
-numpy==1.26.0
-pillow==10.0.0
-scikit-learn==1.3.0
-
-# Firebase (optional)
-firebase-admin==6.2.0
+torch
+torchvision
+numpy
+Pillow>=10.2.0,<10.3.0
+scikit-learn
+firebase-admin

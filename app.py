@@ -31,6 +31,10 @@ mtcnn = MTCNN(image_size=160, margin=0, min_face_size=20, device=device)
 
 # ✅ Load resnet from local weights (no internet download)
 MODEL_PATH = os.environ.get("MODEL_PATH", "models/vggface2_resnet.pth")
+
+# Debug: check if models folder exists
+logger.info(f"Checking models folder: {os.listdir('models') if os.path.exists('models') else '❌ no models dir'}")
+
 resnet = InceptionResnetV1(pretrained=None).eval().to(device)
 if os.path.exists(MODEL_PATH):
     logger.info(f"Loading ResNet weights from {MODEL_PATH}")
@@ -94,6 +98,10 @@ def get_embedding_from_pil(img_pil):
     with torch.no_grad():
         emb = resnet(face.unsqueeze(0).to(device)).detach().cpu().numpy()
     return emb.reshape(1, -1)
+
+@app.route("/")
+def root():
+    return jsonify({"message": "✅ FaceNet API is running", "time": int(time.time())})
 
 @app.route("/health", methods=["GET"])
 def health():

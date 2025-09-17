@@ -24,19 +24,19 @@ RUN pip install --index-url https://download.pytorch.org/whl/cpu torch torchvisi
 # Install other Python dependencies
 RUN pip install -r /app/requirements.txt --no-cache-dir
 
-# Copy your application code
+# Copy application code
 COPY . /app
 
-# ✅ Ensure models folder exists before copy (prevents build failure)
+# Ensure models folder exists and copy model
 RUN mkdir -p /app/models
 COPY models/ /app/models/
 
-# ✅ Copy embeddings & labels only if they exist
-RUN test -f embeddings.npy && cp embeddings.npy /app/ || true
-RUN test -f labels.npy && cp labels.npy /app/ || true
+# Copy embeddings & labels if they exist (won’t fail if missing)
+RUN [ -f embeddings.npy ] && cp embeddings.npy /app/ || true
+RUN [ -f labels.npy ] && cp labels.npy /app/ || true
 
-# Expose default dev port (Render remaps dynamically)
+# Expose port (Render dynamically maps $PORT)
 EXPOSE 5000
 
-# Run Gunicorn with 1 worker
-CMD gunicorn app:app --bind 0.0.0.0:${PORT:-5000} --workers 1 --timeout 300
+# Run Gunicorn using the Render-provided PORT
+CMD gunicorn app:app --bind 0.0.0.0:${PORT:-5000} --workers 1 --timeout 300 --preload

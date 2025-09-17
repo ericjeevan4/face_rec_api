@@ -1,5 +1,5 @@
 # app.py
-import os, io, time, logging
+import os, io, time, logging, sys
 from flask import Flask, request, jsonify
 from PIL import Image
 import numpy as np
@@ -13,6 +13,9 @@ from firebase_admin import credentials, storage as fb_storage, firestore
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("face-rec-api")
+
+# Capture uncaught exceptions (to debug crashes on Render)
+sys.excepthook = lambda exc_type, exc, tb: logger.error("Uncaught exception", exc_info=(exc_type, exc, tb))
 
 app = Flask(__name__)
 
@@ -146,5 +149,5 @@ def predict():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
-    logger.info(f"Starting app on 0.0.0.0:{port}")
+    logger.info(f"🚀 Starting Flask app on 0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port)

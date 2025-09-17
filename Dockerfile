@@ -1,40 +1,28 @@
-# Use slim Python image
-FROM python:3.11-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential libglib2.0-0 libsm6 libxrender1 libxext6 libgl1 \
- && rm -rf /var/lib/apt/lists/*
+# Use Python 3.9 base image
+FROM python:3.9-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements
-COPY requirements.txt /app/requirements.txt
+# Install system dependencies (for git-lfs, Pillow, etc.)
+RUN apt-get update && apt-get install -y \
+    git git-lfs build-essential libgl1 libglib2.0-0 \
+    && git lfs install
 
-# Upgrade pip
-RUN pip install --upgrade pip
+# Copy requirement file first
+COPY requirements.txt .
 
-# Install CPU-only torch + torchvision
-RUN pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision --no-cache-dir
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install other Python dependencies
-RUN pip install -r /app/requirements.txt --no-cache-dir
+# Copy source code
+COPY . .
 
-# Copy your application code
-COPY . /app
+# Ensure LFS files (model weights) are pulled
+RUN git lfs pull
 
-# ✅ Copy the models folder explicitly (ensure vggface2_resnet.pth is inside)
-COPY models /app/models
+# Expose the Render port
+EXPOSE 10000
 
-# ✅ Copy embeddings & labels
-COPY embeddings.npy labels.npy /app/
-
-# Expose default dev port (Render remaps dynamically)
-EXPOSE 5000
-
-# Run Gunicorn with 1 worker
-CMD gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+# Command to start Gunicorn with Flask app
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
